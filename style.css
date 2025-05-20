@@ -1,0 +1,470 @@
+/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header {
+  background-color: #333;
+  padding: 10px 0;
+  text-align: center;
+}
+
+header .logo img {
+  height: 50px;
+}
+
+header nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+header nav ul li {
+  display: inline;
+  margin: 0 15px;
+}
+
+header nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.main {
+  padding: 20px;
+}
+
+.movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.movie {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+  width: 200px;
+  text-align: center;
+}
+
+.movie img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+/* Custom styles for CGV Movie Booking Website */
+
+/* Hero Section */
+.hero-section {
+  margin-bottom: 2rem;
+}
+
+.hero-section img {
+  height: 500px;
+  object-fit: cover;
+}
+
+/* Movie Cards */
+.card {
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-img-top {
+  height: 400px;
+  object-fit: cover;
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand img {
+  max-height: 40px;
+}
+
+/* Footer */
+footer {
+  margin-top: 3rem;
+}
+
+footer a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #ffc107 !important;
+}
+
+/* Custom Button Styles */
+.btn-primary {
+  background-color: #e31837;
+  border-color: #e31837;
+}
+
+.btn-primary:hover {
+  background-color: #c41530;
+  border-color: #c41530;
+}
+
+/* Movie Details */
+.movie-details {
+  padding: 2rem 0;
+}
+
+.movie-poster {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Booking Form */
+.booking-form {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section img {
+    height: 300px;
+  }
+
+  .card-img-top {
+    height: 300px;
+  }
+}
+
+/* Seat Selection Styles */
+.screen {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 30px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.screen-text {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.seat-legend {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.seat-sample {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.seat-sample.available {
+  background-color: #28a745;
+}
+
+.seat-sample.selected {
+  background-color: #007bff;
+}
+
+.seat-sample.occupied {
+  background-color: #dc3545;
+}
+
+/* Payment Styles */
+.payment-method {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-method:hover {
+  border-color: #2196f3;
+  background-color: #f5f9ff;
+}
+
+.payment-method.selected {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+}
+
+.payment-method img {
+  max-height: 30px;
+  margin-right: 10px;
+}
+
+/* Booking Summary Styles */
+.booking-summary {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.booking-summary h6 {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.booking-summary .total-price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2196f3;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .seat {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 0.9em;
+  }
+
+  .screen {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .payment-method {
+    padding: 10px;
+  }
+
+  .payment-method img {
+    max-height: 25px;
+  }
+}
+
+/* Showtimes Page Styles */
+.movie-card {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.movie-card.selected {
+  border: 2px solid #dc3545;
+}
+
+.movie-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+.showtime-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.showtime-option {
+  min-width: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.showtime-option:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+}
+
+.showtime-option .form-check-input:checked + .form-check-label {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.showtime-option .form-check-label {
+  cursor: pointer;
+  display: block;
+  text-align: center;
+}
+
+.showtime-option .form-check-label small {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Seat Selection Styles */
+.seat {
+  width: 35px;
+  height: 35px;
+  margin: 3px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  line-height: 35px;
+  transition: all 0.3s ease;
+}
+
+.seat.available {
+  background-color: #28a745;
+  color: white;
+}
+
+.seat.available:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+}
+
+.seat.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.seat.occupied {
+  background-color: #dc3545;
+  color: white;
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .movie-card img {
+    height: 200px;
+  }
+
+  .showtime-option {
+    min-width: 80px;
+    padding: 8px;
+  }
+}
+
+/* Now Showing Movies - Carousel Styles */
+#nowShowingCarousel .carousel-item {
+  height: 600px; /* Adjust height to match the original hero section */
+  background-color: #000; /* Fallback background color */
+}
+
+#nowShowingCarousel .carousel-item img {
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5; /* Darken the image slightly */
+}
+
+#nowShowingCarousel .carousel-caption {
+  bottom: 20%; /* Adjust vertical position */
+  left: 10%; /* Adjust horizontal position */
+  right: auto; /* Allow caption to take necessary width */
+  text-align: left;
+  padding-bottom: 20px; /* Add some padding at the bottom */
+  color: white; /* Ensure text color is white */
+}
+
+#nowShowingCarousel .carousel-caption .badge {
+  margin-bottom: 10px;
+}
+
+#nowShowingCarousel .carousel-caption h1 {
+  font-size: 3.5rem; /* Adjust font size */
+  margin-bottom: 10px;
+}
+
+#nowShowingCarousel .hero-metadata,
+#nowShowingCarousel .hero-description {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 15px;
+  max-width: 60%; /* Limit description width */
+}
+
+#nowShowingCarousel .carousel-caption .btn {
+  font-size: 1.1rem;
+  padding: 10px 20px;
+}
+
+#nowShowingCarousel .carousel-indicators {
+  bottom: 20px; /* Position indicators */
+  left: auto;
+  right: 30px;
+  justify-content: flex-end;
+}
+
+#nowShowingCarousel .carousel-indicators button {
+  background-color: #fff;
+  border: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+#nowShowingCarousel .carousel-indicators button.active {
+  background-color: #ffc107; /* Active indicator color */
+}
+
+/* Basic styles for the top hero section carousel */
+#heroCarouselTop .carousel-item {
+  height: 400px; /* Adjust height for the simpler top slider */
+  background-color: #000;
+}
+
+#heroCarouselTop .carousel-item img {
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7; /* Adjust opacity */
+}
+
+#heroCarouselTop .carousel-caption {
+  bottom: 50px; /* Adjust position */
+}
+
+#heroCarouselTop .carousel-caption h5 {
+  font-size: 1.5rem;
+}
+
+#heroCarouselTop .carousel-caption p {
+  font-size: 1rem;
+}
+
+/* Custom class for full-width Now Showing section */
+.now-showing-full-width {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.now-showing-full-width .h2 {
+  padding-left: 15px; /* Add some padding to the title if needed */
+  padding-right: 15px;
+}
