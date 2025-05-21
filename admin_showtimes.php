@@ -1,79 +1,49 @@
 <?php
-include 'db.php';
 session_start();
+require_once 'db.php';
 
-// Kiểm tra đăng nhập admin
+// Kiểm tra đăng nhập
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: admin_login.php");
+    header('Location: admin_login.php');
     exit();
 }
 
-$message = '';
+// Lấy thông tin admin
+$admin_id = $_SESSION['admin_id'];
+$admin_username = $_SESSION['admin_username'];
 
-// Xử lý thông báo từ việc xóa suất chiếu
-if (isset($_GET['msg'])) {
-    switch ($_GET['msg']) {
-        case 'deleted':
-            $message = '<div class="alert alert-success">Xóa suất chiếu thành công!</div>';
-            break;
-        case 'not_found':
-            $message = '<div class="alert alert-danger">Không tìm thấy suất chiếu!</div>';
-            break;
-        case 'has_bookings':
-            $message = '<div class="alert alert-danger">Không thể xóa suất chiếu này vì đã có người đặt vé!</div>';
-            break;
-        case 'error':
-            $error_msg = isset($_GET['error_msg']) ? $_GET['error_msg'] : 'Có lỗi xảy ra!';
-            $message = '<div class="alert alert-danger">' . htmlspecialchars($error_msg) . '</div>';
-            break;
-    }
-}
-
-// Xử lý form submit
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['movie_id']) && isset($_POST['room_id']) && isset($_POST['showtime']) && isset($_POST['price'])) {
+// Xử lý thêm suất chiếu mới
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_showtime'])) {
     $movie_id = $_POST['movie_id'];
     $room_id = $_POST['room_id'];
     $showtime = $_POST['showtime'];
     $price = $_POST['price'];
-
-    // Kiểm tra xem suất chiếu đã tồn tại chưa
-    $check_sql = "SELECT * FROM showtimes WHERE movie_id = ? AND showtime = ? AND room_id = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("isi", $movie_id, $showtime, $room_id);
-    $check_stmt->execute();
-    $result = $check_stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $message = '<div class="alert alert-danger">Suất chiếu này đã tồn tại!</div>';
+    
+    $sql = "INSERT INTO showtimes (movie_id, room_id, showtime, price) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iisd", $movie_id, $room_id, $showtime, $price);
+    
+    if ($stmt->execute()) {
+        $success_message = "Thêm suất chiếu thành công!";
     } else {
-        // Thêm suất chiếu mới
-        $sql = "INSERT INTO showtimes (movie_id, room_id, showtime, price) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iisd", $movie_id, $room_id, $showtime, $price);
-
-        if ($stmt->execute()) {
-            $message = '<div class="alert alert-success">Thêm suất chiếu thành công!</div>';
-        } else {
-            $message = '<div class="alert alert-danger">Lỗi: ' . $stmt->error . '</div>';
-        }
+        $error_message = "Lỗi: " . $conn->error;
     }
 }
 
 // Lấy danh sách phim
-$movies_sql = "SELECT id, title FROM movies WHERE status = 'now_showing'";
-$movies_result = $conn->query($movies_sql);
+$movies = $conn->query("SELECT id, title FROM movies WHERE status = 'now_showing'");
 
 // Lấy danh sách phòng chiếu
-$rooms_sql = "SELECT id, name FROM rooms";
-$rooms_result = $conn->query($rooms_sql);
+$rooms = $conn->query("SELECT id, name FROM rooms");
 
 // Lấy danh sách suất chiếu
-$showtimes_sql = "SELECT s.*, m.title as movie_title, r.name as room_name 
-                 FROM showtimes s 
-                 JOIN movies m ON s.movie_id = m.id 
-                 JOIN rooms r ON s.room_id = r.id 
-                 ORDER BY s.showtime DESC";
-$showtimes_result = $conn->query($showtimes_sql);
+$showtimes = $conn->query("
+    SELECT s.*, m.title as movie_title, r.name as room_name 
+    FROM showtimes s 
+    JOIN movies m ON s.movie_id = m.id 
+    JOIN rooms r ON s.room_id = r.id 
+    ORDER BY s.showtime DESC
+");
 ?>
 
 <!DOCTYPE html>
@@ -81,35 +51,17 @@ $showtimes_result = $conn->query($showtimes_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Suất Chiếu - CGV Cinemas</title>
+    <title>Quản lý suất chiếu - CGV Cinemas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 15px;
-            display: block;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .content {
-            padding: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="admin_style.css">
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar">
-                <h3 class="text-white text-center mb-4">CGV Admin</h3>
+                <h3 class="text-center mb-4">CGV Admin</h3>
                 <nav>
                     <a href="admin_dashboard.php"><i class="fas fa-home"></i> Trang chủ</a>
                     <a href="admin_movies.php"><i class="fas fa-film"></i> Quản lý phim</a>
@@ -122,112 +74,115 @@ $showtimes_result = $conn->query($showtimes_sql);
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 content">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Quản lý Suất Chiếu</h2>
-                </div>
-
-                <?php echo $message; ?>
-
-                <div class="row">
-                    <!-- Form thêm suất chiếu -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="mb-0">Thêm Suất Chiếu</h3>
-                            </div>
-                            <div class="card-body">
-                                <form method="POST" action="">
-                                    <div class="mb-3">
-                                        <label for="movie_id" class="form-label">Chọn Phim</label>
-                                        <select class="form-select" id="movie_id" name="movie_id" required>
-                                            <option value="">Chọn phim...</option>
-                                            <?php
-                                            if ($movies_result && $movies_result->num_rows > 0) {
-                                                while($movie = $movies_result->fetch_assoc()) {
-                                                    echo '<option value="' . $movie['id'] . '">' . $movie['title'] . '</option>';
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="room_id" class="form-label">Chọn Phòng Chiếu</label>
-                                        <select class="form-select" id="room_id" name="room_id" required>
-                                            <option value="">Chọn phòng chiếu...</option>
-                                            <?php
-                                            if ($rooms_result && $rooms_result->num_rows > 0) {
-                                                while($room = $rooms_result->fetch_assoc()) {
-                                                    echo '<option value="' . $room['id'] . '">' . $room['name'] . '</option>';
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="showtime" class="form-label">Thời gian chiếu</label>
-                                        <input type="datetime-local" class="form-control" id="showtime" name="showtime" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="price" class="form-label">Giá vé (VNĐ)</label>
-                                        <input type="number" class="form-control" id="price" name="price" required min="0">
-                                    </div>
-
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-warning">Thêm Suất Chiếu</button>
-                                    </div>
-                                </form>
-                            </div>
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="page-title">Quản lý suất chiếu</h2>
+                        <div class="admin-info">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <?php echo htmlspecialchars($admin_username); ?>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Danh sách suất chiếu -->
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="mb-0">Danh Sách Suất Chiếu</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Phim</th>
-                                                <th>Phòng</th>
-                                                <th>Thời gian</th>
-                                                <th>Giá vé</th>
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            if ($showtimes_result && $showtimes_result->num_rows > 0) {
-                                                while($showtime = $showtimes_result->fetch_assoc()) {
-                                                    echo '<tr>';
-                                                    echo '<td>' . $showtime['movie_title'] . '</td>';
-                                                    echo '<td>' . $showtime['room_name'] . '</td>';
-                                                    echo '<td>' . date('d/m/Y H:i', strtotime($showtime['showtime'])) . '</td>';
-                                                    echo '<td>' . number_format($showtime['price'], 0, ',', '.') . ' VNĐ</td>';
-                                                    echo '<td>
-                                                            <a href="admin_edit_showtime.php?id=' . $showtime['id'] . '" class="btn btn-sm btn-primary">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <a href="admin_delete_showtime.php?id=' . $showtime['id'] . '" class="btn btn-sm btn-danger" onclick="return confirm(\'Bạn có chắc chắn muốn xóa suất chiếu này?\')">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                          </td>';
-                                                    echo '</tr>';
-                                                }
-                                            } else {
-                                                echo '<tr><td colspan="5" class="text-center">Không có suất chiếu nào</td></tr>';
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                <?php if (isset($success_message)): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i><?php echo $success_message; ?>
+                </div>
+                <?php endif; ?>
+
+                <?php if (isset($error_message)): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i><?php echo $error_message; ?>
+                </div>
+                <?php endif; ?>
+
+                <!-- Add Showtime Form -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Thêm suất chiếu mới</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="" method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phim</label>
+                                    <select class="form-select" name="movie_id" required>
+                                        <option value="">Chọn phim</option>
+                                        <?php while ($movie = $movies->fetch_assoc()): ?>
+                                        <option value="<?php echo $movie['id']; ?>">
+                                            <?php echo htmlspecialchars($movie['title']); ?>
+                                        </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phòng chiếu</label>
+                                    <select class="form-select" name="room_id" required>
+                                        <option value="">Chọn phòng</option>
+                                        <?php while ($room = $rooms->fetch_assoc()): ?>
+                                        <option value="<?php echo $room['id']; ?>">
+                                            <?php echo htmlspecialchars($room['name']); ?>
+                                        </option>
+                                        <?php endwhile; ?>
+                                    </select>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Thời gian chiếu</label>
+                                    <input type="datetime-local" class="form-control" name="showtime" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Giá vé</label>
+                                    <input type="number" class="form-control" name="price" required>
+                                </div>
+                            </div>
+                            <button type="submit" name="add_showtime" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Thêm suất chiếu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Showtimes List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách suất chiếu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Phim</th>
+                                        <th>Phòng chiếu</th>
+                                        <th>Thời gian chiếu</th>
+                                        <th>Giá vé</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($showtime = $showtimes->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($showtime['movie_title']); ?></td>
+                                        <td><?php echo htmlspecialchars($showtime['room_name']); ?></td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($showtime['showtime'])); ?></td>
+                                        <td><?php echo number_format($showtime['price'], 0, ',', '.'); ?> VNĐ</td>
+                                        <td>
+                                            <a href="admin_edit_showtime.php?id=<?php echo $showtime['id']; ?>" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="admin_delete_showtime.php?id=<?php echo $showtime['id']; ?>" 
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa suất chiếu này?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -237,8 +192,4 @@ $showtimes_result = $conn->query($showtimes_sql);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
-
-<?php
-$conn->close();
-?> 
+</html> 

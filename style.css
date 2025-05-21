@@ -99,19 +99,6 @@ footer {
   max-height: 40px;
 }
 
-/* Footer */
-footer {
-  margin-top: 3rem;
-}
-
-footer a {
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-footer a:hover {
-  color: #ffc107 !important;
-}
 
 /* Custom Button Styles */
 .btn-primary {

@@ -2,38 +2,69 @@
 session_start();
 require_once 'db.php';
 
-// Kiểm tra xem admin đã đăng nhập chưa
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['admin_id'])) {
     header('Location: admin_login.php');
-    exit;
+    exit();
 }
 
-// Kiểm tra xem có ID phim trên URL không
-if (isset($_GET['id'])) {
-    $movie_id = $_GET['id'];
+// Kiểm tra có ID phim không
+if (!isset($_GET['id'])) {
+    header('Location: admin_movies.php');
+    exit();
+}
 
-    // Chuẩn bị và thực thi câu lệnh DELETE
-    $sql = "DELETE FROM movies WHERE id = ? LIMIT 1";
+$movie_id = $_GET['id'];
+
+// Bắt đầu transaction
+$conn->begin_transaction();
+
+try {
+    // Xóa các suất chiếu liên quan trước
+    $sql = "DELETE FROM showtimes WHERE movie_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $movie_id);
-
-    if ($stmt->execute()) {
-        // Xóa thành công, chuyển hướng về trang quản lý phim
-        header('Location: admin_movies.php?msg=deleted');
-        exit;
-    } else {
-        // Xảy ra lỗi khi xóa
-        $error_msg = 'Lỗi khi xóa phim: ' . $stmt->error;
-        // Chuyển hướng về trang quản lý phim kèm thông báo lỗi
-        header('Location: admin_movies.php?msg=error&error_msg=' . urlencode($error_msg));
-        exit;
+    $stmt->execute();
+    
+    // Xóa các đặt vé liên quan
+    $sql = "DELETE FROM bookings WHERE showtime_id IN (SELECT id FROM showtimes WHERE movie_id = ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    
+    // Lấy thông tin poster trước khi xóa phim
+    $sql = "SELECT poster FROM movies WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $movie = $result->fetch_assoc();
+    
+    // Xóa phim
+    $sql = "DELETE FROM movies WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    
+    // Xóa file poster nếu tồn tại
+    if ($movie && !empty($movie['poster'])) {
+        $poster_path = "uploads/posters/" . $movie['poster'];
+        if (file_exists($poster_path)) {
+            unlink($poster_path);
+        }
     }
-
-    $stmt->close();
-
-} else {
-    // Không có ID phim, chuyển hướng về trang quản lý phim
-    header('Location: admin_movies.php');
-    exit;
+    
+    // Commit transaction nếu mọi thứ OK
+    $conn->commit();
+    $_SESSION['success_message'] = "Xóa phim thành công!";
+    
+} catch (Exception $e) {
+    // Rollback nếu có lỗi
+    $conn->rollback();
+    $_SESSION['error_message'] = "Lỗi khi xóa phim: " . $e->getMessage();
 }
+
+// Chuyển hướng về trang quản lý phim
+header('Location: admin_movies.php');
+exit();
 ?> 
